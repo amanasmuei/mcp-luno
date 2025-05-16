@@ -50,6 +50,79 @@ uv pip install -r requirements.txt
 
 4. Configure your Luno API credentials (choose one method):
 
+## Docker Support
+
+You can run the MCP server using Docker for easier deployment and consistent environment across different platforms.
+
+### Using Docker Compose (Recommended)
+
+1. Copy the example environment file and configure your credentials:
+```bash
+cp .env.example .env
+# Edit .env file with your Luno API credentials
+```
+
+2. Start the server:
+```bash
+docker compose up -d
+```
+
+The server will be available at `ws://localhost:8765` in WebSocket mode.
+
+3. View logs:
+```bash
+docker compose logs -f
+```
+
+4. Stop the server:
+```bash
+docker compose down
+```
+
+### Using Docker Directly
+
+Build the image:
+```bash
+docker build -t mcp-luno .
+```
+
+Run the container:
+```bash
+docker run -d \
+  -p 8765:8765 \
+  -e LUNO_API_KEY=your_api_key_here \
+  -e LUNO_API_SECRET=your_api_secret_here \
+  -e MCP_TRANSPORT=websocket \
+  -e MCP_HOST=0.0.0.0 \
+  -v ./certs:/app/certs \
+  --name mcp-luno \
+  mcp-luno
+```
+
+### Using with AI Assistants
+
+After starting the Docker container, you can connect various AI assistants to use the Luno MCP server:
+
+#### Cursor
+Add the following to your Cursor configuration:
+```json
+{
+  "mcp_servers": {
+    "luno": {
+      "type": "websocket",
+      "url": "ws://localhost:8765"
+    }
+  }
+}
+```
+
+#### Claude Desktop
+In Claude Desktop settings:
+1. Go to Settings > MCP Servers
+```
+
+## Manual Installation
+
    **Option A**: Using `.env` file
    ```bash
    cp .env.example .env

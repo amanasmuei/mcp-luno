@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  mcp-luno:
+    build: .
+    ports:
+      - "8765:8765"  # WebSocket port
+    environment:
+      - LUNO_API_KEY=${LUNO_API_KEY}
+      - LUNO_API_SECRET=${LUNO_API_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - MCP_TRANSPORT=websocket
+      - MCP_HOST=0.0.0.0  # Allow external connections
+      - MCP_PORT=8765
+      - MCP_MAX_CONNECTIONS=50
+      - MCP_MAX_MESSAGE_SIZE=1048576
+      - MCP_RATE_LIMIT=100
+    volumes:
+      - ./certs:/app/certs  # Mount SSL certificates if needed
+    restart: unless-stopped
