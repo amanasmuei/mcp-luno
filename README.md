@@ -119,6 +119,46 @@ Add the following to your Cursor configuration:
 #### Claude Desktop
 In Claude Desktop settings:
 1. Go to Settings > MCP Servers
+2. Add a new server with:
+   - Name: Luno
+   - Type: WebSocket
+   - URL: ws://localhost:8765
+
+#### Cline
+Add the following to your Cline configuration file:
+```json
+{
+  "mcp": {
+    "servers": {
+      "luno": {
+        "transport": "websocket",
+        "url": "ws://localhost:8765"
+      }
+    }
+  }
+}
+```
+
+### SSL Support with Docker
+
+To use SSL with the Docker container:
+
+1. Generate certificates using the provided script:
+```bash
+./generate_certificates.sh
+```
+
+2. Mount the certificates directory when running the container:
+```bash
+docker run -d \
+  -p 8765:8765 \
+  -e LUNO_API_KEY=your_api_key_here \
+  -e LUNO_API_SECRET=your_api_secret_here \
+  -e MCP_TRANSPORT=websocket \
+  -e MCP_HOST=0.0.0.0 \
+  -v ./certs:/app/certs \
+  --name mcp-luno \
+  mcp-luno
 ```
 
 ## Manual Installation
