@@ -1,0 +1,15 @@
+{
+  "servers": {
+    "luno-mcp-server": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m", "src.main"],
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "LUNO_API_KEY": "",
+        "LUNO_API_SECRET": "",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}

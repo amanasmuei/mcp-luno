@@ -48,18 +48,33 @@ source .venv/bin/activate  # On macOS/Linux
 uv pip install -r requirements.txt
 ```
 
-4. Set up your Luno API credentials
-```bash
-cp .env.example .env
-```
+4. Configure your Luno API credentials (choose one method):
 
-5. Edit the `.env` file to add your Luno API credentials:
-```
-LUNO_API_KEY=your_api_key_here
-LUNO_API_SECRET=your_api_secret_here
-```
+   **Option A**: Using `.env` file
+   ```bash
+   cp .env.example .env
+   ```
+
+   Then edit the `.env` file to add your Luno API credentials:
+   ```
+   LUNO_API_KEY=your_api_key_here
+   LUNO_API_SECRET=your_api_secret_here
+   ```
+
+   **Option B**: Using VS Code MCP configuration
+   
+   Edit the `.vscode/mcp.json` file and add your credentials to the `env` section:
+   ```json
+   "env": {
+     "PYTHONPATH": "${workspaceFolder}",
+     "LUNO_API_KEY": "your_api_key_here",
+     "LUNO_API_SECRET": "your_api_secret_here",
+     "LOG_LEVEL": "INFO"
+   }
+   ```
 
 > **Note**: Without valid API credentials, only public endpoints will be available.
+> **Recommendation**: For security, prefer environment variables when sharing code.
 
 ## Running the Server
 
@@ -82,6 +97,30 @@ This server implements the Model Context Protocol, which allows AI models to int
 ### VS Code Integration
 
 The `.vscode/mcp.json` file configures the server for use with VS Code. The server can be automatically discovered by MCP-compatible extensions.
+
+#### Configuring the MCP Server in VS Code
+
+You can configure the server directly from the `.vscode/mcp.json` file:
+
+```json
+{
+  "servers": {
+    "luno-mcp-server": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m", "src.main"],
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "LUNO_API_KEY": "your_api_key_here",
+        "LUNO_API_SECRET": "your_api_secret_here",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
+```
+
+This configuration will be used by VS Code extensions that support the MCP protocol, making it easy to integrate with AI models and other tools.
 
 ## Available Methods
 
@@ -165,9 +204,19 @@ The MCP server uses a simple architecture:
 
 ### Common Issues
 
-- **API Authentication Errors**: Ensure your Luno API keys are correctly set in the `.env` file
+- **API Authentication Errors**: Ensure your Luno API keys are correctly set in either the `.env` file or in `.vscode/mcp.json`
 - **Import Errors**: Make sure you've activated the virtual environment
 - **Rate Limiting**: The Luno API has rate limits - implement retry logic for production use
+
+### Configuration Priority
+
+When starting the server, configuration values are loaded in this order of priority:
+
+1. Environment variables passed through MCP configuration (highest priority)
+2. Values in the `.env` file 
+3. Default values in code (lowest priority)
+
+This means you can set values in the MCP configuration to override any existing values in your `.env` file.
 
 ## License
 

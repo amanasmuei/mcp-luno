@@ -4,6 +4,7 @@ This module implements the Model Context Protocol for interacting with the Luno 
 """
 
 import sys
+import os
 import json
 import asyncio
 import logging
@@ -68,9 +69,25 @@ class LunoMCPServer:
         self.dispatcher.methods["describe_capabilities"] = self.describe_capabilities
 
     async def initialize_client(self):
-        """Initialize the Luno API client."""
+        """Initialize the Luno API client with configuration from environment."""
         if self.client is None:
-            self.client = LunoClient()
+            # Get configuration from environment variables
+            api_key = os.environ.get("LUNO_API_KEY")
+            api_secret = os.environ.get("LUNO_API_SECRET")
+
+            # Configure logging level if specified
+            log_level = os.environ.get("LOG_LEVEL", "INFO")
+            logging.getLogger().setLevel(getattr(logging, log_level, logging.INFO))
+
+            # Initialize client with environment-provided credentials
+            self.client = LunoClient(api_key=api_key, api_secret=api_secret)
+
+            # Log configuration source
+            if api_key and api_secret:
+                logger.info("Using API credentials from environment configuration")
+            else:
+                logger.warning("No API credentials found in environment configuration")
+
         return self.client
 
     async def describe_capabilities(self) -> Dict[str, Any]:
