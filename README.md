@@ -2,7 +2,14 @@
 
 A Model Context Protocol (MCP) server for the Luno cryptocurrency exchange API. This server provides a standardized interface for AI models and applications to interact with the Luno API for cryptocurrency trading.
 
-![Luno API + MCP](https://www.luno.com/static/images/logos/logo-light.svg)
+<!-- A text-based header instead of potentially broken image link -->
+```
+ _                        __  __  ____ ____   
+| |    _   _ _ __   ___  |  \/  |/ ___|  _ \  
+| |   | | | | '_ \ / _ \ | |\/| | |   | |_) | 
+| |___| |_| | | | | (_) || |  | | |___|  __/  
+|_____|\__,_|_| |_|\___/ |_|  |_|\____|_|     
+```
 
 ## Features
 
@@ -25,7 +32,7 @@ A Model Context Protocol (MCP) server for the Luno cryptocurrency exchange API. 
 
 1. Clone this repository
 ```bash
-git clone https://github.com/yourusername/mcp-luno.git
+git clone https://github.com/amanasmuei/mcp-luno.git
 cd mcp-luno
 ```
 
@@ -116,8 +123,9 @@ Get Bitcoin-ZAR price:
 
 ### Project Structure
 
-```
+```text
 ├── .env                 # Environment variables (API credentials)
+├── .gitignore           # Git ignore configuration
 ├── .vscode/             # VS Code specific settings
 │   └── mcp.json         # MCP configuration for VS Code
 ├── src/                 # Source code
@@ -126,8 +134,9 @@ Get Bitcoin-ZAR price:
 │       ├── luno_client.py # Luno API client
 │       └── server.py    # MCP server core
 ├── tests/               # Test suite
+├── test_client.py       # Simple test client for the MCP server
 ├── requirements.txt     # Project dependencies
-└── setup.py            # Package setup
+└── setup.py             # Package setup
 ```
 
 ### Running Tests
