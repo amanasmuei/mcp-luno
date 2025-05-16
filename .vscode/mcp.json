@@ -1,14 +1,66 @@
 {
   "servers": {
-    "luno-mcp-server": {
+    "luno-mcp-server-stdio": {
       "type": "stdio",
       "command": "python",
-      "args": ["-m", "src.main"],
+      "args": ["-m", "src.main", "--transport", "stdio"],
       "env": {
         "PYTHONPATH": "${workspaceFolder}",
         "LUNO_API_KEY": "",
         "LUNO_API_SECRET": "",
-        "LOG_LEVEL": "INFO"
+        "LOG_LEVEL": "INFO",
+        "MCP_TRANSPORT": "stdio"
+      }
+    },
+    "luno-mcp-server-websocket": {
+      "type": "process",
+      "command": "python",
+      "args": [
+        "-m", "src.main", 
+        "--transport", "websocket", 
+        "--host", "localhost", 
+        "--port", "8765",
+        "--max-connections", "50",
+        "--max-message-size", "1048576",
+        "--rate-limit", "100"
+      ],
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "LUNO_API_KEY": "",
+        "LUNO_API_SECRET": "",
+        "LOG_LEVEL": "INFO",
+        "MCP_TRANSPORT": "websocket",
+        "MCP_HOST": "localhost",
+        "MCP_PORT": "8765",
+        "MCP_MAX_CONNECTIONS": "50",
+        "MCP_MAX_MESSAGE_SIZE": "1048576",
+        "MCP_RATE_LIMIT": "100"
+      }
+    },
+    "luno-mcp-server-websocket-secure": {
+      "type": "process",
+      "command": "python",
+      "args": [
+        "-m", "src.main", 
+        "--transport", "websocket", 
+        "--host", "localhost", 
+        "--port", "8765",
+        "--max-connections", "50",
+        "--max-message-size", "1048576",
+        "--rate-limit", "100",
+        "--ssl-cert", "./certs/server.crt",
+        "--ssl-key", "./certs/server.key"
+      ],
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "LUNO_API_KEY": "",
+        "LUNO_API_SECRET": "",
+        "LOG_LEVEL": "INFO",
+        "MCP_TRANSPORT": "websocket",
+        "MCP_HOST": "localhost",
+        "MCP_PORT": "8765",
+        "SSL_CERT_PATH": "./certs/server.crt",
+        "SSL_KEY_PATH": "./certs/server.key"
       }
     }
   }

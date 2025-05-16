@@ -78,13 +78,53 @@ uv pip install -r requirements.txt
 
 ## Running the Server
 
-To run the MCP server:
+You can run the MCP server in two different transport modes:
+
+### STDIO Transport (Default, Single Client)
+
+This is the default mode, which supports a single client connection via standard input/output:
 
 ```bash
-python -m src.main
+python -m src.main --transport stdio
 ```
 
-You can test the server using the included test client:
+### WebSockets Transport (Multiple Clients)
+
+For supporting multiple client connections simultaneously, run the server in WebSocket mode:
+
+```bash
+python -m src.main --transport websocket [--host HOST] [--port PORT]
+```
+
+The WebSocket server will start at `ws://localhost:8765` by default.
+
+#### Testing the WebSocket Server
+
+You can test the WebSocket server using the included test client:
+
+```bash
+python test_websocket_client.py
+```
+
+This helps verify that the server is correctly handling WebSocket connections and responding to requests.
+
+### Command Line Options
+
+- `--transport {stdio,websocket}`: Transport mechanism to use (default: stdio)
+- `--host HOST`: Host to bind to when using WebSocket transport (default: localhost)
+- `--port PORT`: Port to bind to when using WebSocket transport (default: 8765)
+
+### Environment Variables
+
+You can also configure the transport using environment variables:
+
+- `MCP_TRANSPORT`: Transport mechanism ("stdio" or "websocket")
+- `MCP_HOST`: Host to bind to for WebSocket transport
+- `MCP_PORT`: Port to bind to for WebSocket transport
+
+### Testing with the Standard Client
+
+For testing the STDIO transport, use the included test client:
 
 ```bash
 python test_client.py
@@ -94,9 +134,29 @@ python test_client.py
 
 This server implements the Model Context Protocol, which allows AI models to interact with it via standardized JSON-RPC 2.0 messages. The server operates over STDIO by default, making it easy to integrate with VS Code extensions and other MCP-compatible clients.
 
-### VS Code Integration
+## VS Code Integration
 
-The `.vscode/mcp.json` file configures the server for use with VS Code. The server can be automatically discovered by MCP-compatible extensions.
+The `.vscode/mcp.json` file configures the server for use with VS Code. Two server configurations are provided:
+
+1. `luno-mcp-server-stdio` - Uses the STDIO transport (default MCP behavior)
+2. `luno-mcp-server-websocket` - Uses the WebSocket transport for multiple client support
+
+### VS Code Configuration
+
+To use the WebSocket transport with VS Code, the `mcp.json` file includes a process-type configuration:
+
+```json
+"luno-mcp-server-websocket": {
+  "type": "process",
+  "command": "python",
+  "args": ["-m", "src.main", "--transport", "websocket"],
+  "env": {
+    // environment variables
+  }
+}
+```
+
+When using the WebSocket transport, VS Code will start the server as a background process rather than communicating via STDIO.
 
 #### Configuring the MCP Server in VS Code
 
@@ -218,6 +278,59 @@ When starting the server, configuration values are loaded in this order of prior
 
 This means you can set values in the MCP configuration to override any existing values in your `.env` file.
 
+## Multi-Client Support
+
+This MCP server supports multiple client connections simultaneously via WebSockets. For detailed information, see [MULTI_CLIENT_SUPPORT.md](MULTI_CLIENT_SUPPORT.md).
+
+### Transport Options
+
+The server supports two transport mechanisms:
+
+1. **STDIO** (Default): Standard input/output - single client, used by VS Code MCP
+2. **WebSockets**: Network transport - multiple clients with security features
+
+### Running with WebSockets Transport
+
+Basic usage:
+
+```bash
+python -m src.main --transport websocket --host localhost --port 8765
+```
+
+With security options:
+
+```bash
+python -m src.main --transport websocket --host localhost --port 8765 \
+  --max-connections 50 --max-message-size 1048576 --rate-limit 100
+```
+
+With SSL/TLS encryption:
+
+```bash
+# First generate certificates
+./generate_certificates.sh
+
+# Then run with SSL support
+python -m src.main --transport websocket --ssl-cert ./certs/server.crt --ssl-key ./certs/server.key
+```
+
+### WebSocket Client Tools
+
+The repository includes two client tools:
+
+1. **test_websocket_client.py**: Simple test client
+   ```bash
+   python test_websocket_client.py
+   ```
+
+2. **enhanced_websocket_client.py**: Advanced client with multi-client simulation
+   ```bash
+   # Single client mode
+   python enhanced_websocket_client.py --mode single
+   
+   # Multi-client simulation (3 clients)
+   python enhanced_websocket_client.py --mode multi --clients 3
+   ```
 ## License
 
 MIT License

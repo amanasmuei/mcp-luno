@@ -11,6 +11,7 @@ import logging
 from typing import Dict, Any, List, Optional, Union, Tuple
 
 from .luno_client import LunoClient
+from .transport import MCPTransport, STDIOTransport, WebSocketTransport
 
 
 # Simple dispatcher to map method names to handler functions
@@ -341,36 +342,88 @@ class LunoMCPServer:
             logger.error(f"Error handling request: {str(e)}")
             return json.dumps({"error": str(e), "id": None})
 
+    async def run_with_transport(self, transport: MCPTransport):
+        """
+        Run the server using the specified transport mechanism.
+
+        Args:
+            transport: The transport implementation to use.
+        """
+        await self.initialize_client()
+        logger.info(f"LunoMCPServer started with {transport.__class__.__name__}")
+
+        try:
+            await transport.run(self.handle_request)
+        except Exception as e:
+            logger.error(f"Error in transport: {str(e)}")
+        finally:
+            if self.client:
+                await self.client.close()
+            logger.info("LunoMCPServer shutting down...")
+
     async def run_forever(self):
         """
-        Run the server indefinitely, reading from stdin and writing to stdout.
+        Run the server indefinitely using STDIO transport (legacy method).
 
         This is the main entry point for the MCP server when run as a stdio process.
         """
-        await self.initialize_client()
+        transport = STDIOTransport()
+        await self.run_with_transport(transport)
 
-        logger.info("LunoMCPServer started. Reading from stdin...")
+    async def run_websocket(
+        self,
+        host="localhost",
+        port=8765,
+        max_connections=50,
+        max_message_size=1024 * 1024,
+        rate_limit=100,
+    ):
+        """
+        Run the server as a WebSocket server.
 
-        while True:
-            # Read a line from stdin
-            line = await asyncio.get_event_loop().run_in_executor(
-                None, sys.stdin.readline
+        Args:
+            host: The host to bind to.
+            port: The port to bind to.
+            max_connections: Maximum number of concurrent connections.
+            max_message_size: Maximum message size in bytes.
+            rate_limit: Maximum number of messages per minute per client.
+        """
+        transport = WebSocketTransport(
+            host=host,
+            port=port,
+            max_connections=max_connections,
+            max_message_size=max_message_size,
+            rate_limit=rate_limit,
+        )
+        await self.run_with_transport(transport)
+
+    async def run(
+        self,
+        transport_type="stdio",
+        host="localhost",
+        port=8765,
+        max_connections=50,
+        max_message_size=1024 * 1024,
+        rate_limit=100,
+    ):
+        """
+        Run the server with the specified transport type.
+
+        Args:
+            transport_type: The type of transport to use ("stdio" or "websocket").
+            host: The host to bind to (for WebSocket transport).
+            port: The port to bind to (for WebSocket transport).
+            max_connections: Maximum number of concurrent connections (websocket only).
+            max_message_size: Maximum message size in bytes (websocket only).
+            rate_limit: Maximum number of messages per minute per client (websocket only).
+        """
+        if transport_type.lower() == "websocket":
+            await self.run_websocket(
+                host,
+                port,
+                max_connections=max_connections,
+                max_message_size=max_message_size,
+                rate_limit=rate_limit,
             )
-            if not line:
-                break
-
-            # Strip newline
-            line = line.strip()
-
-            # Skip empty lines
-            if not line:
-                continue
-
-            # Handle the request
-            response = await self.handle_request(line)
-
-            # Write the response to stdout
-            print(response, flush=True)
-
-        logger.info("LunoMCPServer shutting down...")
-        await self.client.close()
+        else:
+            await self.run_forever()
