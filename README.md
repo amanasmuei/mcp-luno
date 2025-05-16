@@ -117,12 +117,51 @@ Add the following to your Cursor configuration:
 ```
 
 #### Claude Desktop
-In Claude Desktop settings:
-1. Go to Settings > MCP Servers
-2. Add a new server with:
-   - Name: Luno
-   - Type: WebSocket
-   - URL: ws://localhost:8765
+In Claude Desktop settings, you have two options for configuring the MCP server:
+
+##### Option 1: Using Docker (Recommended)
+```json
+{
+  "mcpServers": {
+    "luno": {
+      "command": "docker",
+      "args": ["compose", "up"],
+      "cwd": "/path/to/mcp-luno",
+      "transport": "websocket",
+      "url": "ws://localhost:8765",
+      "env": {
+        "LUNO_API_KEY": "your_api_key_here",
+        "LUNO_API_SECRET": "your_api_secret_here"
+      }
+    }
+  }
+}
+```
+
+This configuration starts the server in a Docker container and connects via WebSocket.
+
+##### Option 2: Using Direct Python Execution
+```json
+{
+  "mcpServers": {
+    "luno": {
+      "command": "python",
+      "args": ["-m", "src.main", "--transport", "stdio"],
+      "cwd": "/path/to/mcp-luno",
+      "transport": "stdio",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "LUNO_API_KEY": "your_api_key_here",
+        "LUNO_API_SECRET": "your_api_secret_here"
+      }
+    }
+  }
+}
+```
+
+This configuration runs the Python server directly using STDIO transport.
+
+> Note: Replace `/path/to/mcp-luno` with the actual path where you cloned the repository.
 
 #### Cline
 Add the following to your Cline configuration file:
