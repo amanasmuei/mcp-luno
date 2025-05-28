@@ -1,20 +1,32 @@
 version: '3.8'
 
 services:
-  mcp-luno:
+  luno-mcp-server:
     build: .
+    container_name: luno-mcp-server
     ports:
-      - "8765:8765"  # WebSocket port
+      - "8765:8765"
     environment:
-      - LUNO_API_KEY=${LUNO_API_KEY}
-      - LUNO_API_SECRET=${LUNO_API_SECRET}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - MCP_TRANSPORT=websocket
-      - MCP_HOST=0.0.0.0  # Allow external connections
-      - MCP_PORT=8765
-      - MCP_MAX_CONNECTIONS=50
-      - MCP_MAX_MESSAGE_SIZE=1048576
-      - MCP_RATE_LIMIT=100
+      # Luno API credentials (required for private endpoints)
+      LUNO_API_KEY: ${LUNO_API_KEY}
+      LUNO_API_SECRET: ${LUNO_API_SECRET}
+      
+      # Server configuration
+      MCP_TRANSPORT: websocket
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: 8765
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      
+      # WebSocket limits
+      MCP_MAX_CONNECTIONS: 50
+      MCP_MAX_MESSAGE_SIZE: 1048576
+      MCP_RATE_LIMIT: 100
     volumes:
-      - ./certs:/app/certs  # Mount SSL certificates if needed
+      - ./certs:/app/certs
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import websockets; import asyncio; asyncio.run(websockets.connect('ws://localhost:8765'))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

@@ -8,17 +8,10 @@ import os
 import json
 import asyncio
 import logging
-from typing import Dict, Any, List, Optional, Union, Tuple
+from typing import Dict, Any, Optional
 
 from .luno_client import LunoClient
 from .transport import MCPTransport, STDIOTransport, WebSocketTransport
-
-
-# Simple dispatcher to map method names to handler functions
-class SimpleDispatcher:
-    def __init__(self):
-        self.methods = {}
-
 
 # Setup logging
 logging.basicConfig(
@@ -28,7 +21,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Define MCP methods
+# Available MCP methods
 MCP_METHODS = [
     "get_crypto_price",
     "get_market_overview",
@@ -42,66 +35,55 @@ MCP_METHODS = [
 
 
 class LunoMCPServer:
-    """
-    Model Context Protocol (MCP) server for the Luno cryptocurrency exchange API.
-
-    This server implements the MCP protocol to provide a standardized interface
-    for AI models to interact with the Luno API for cryptocurrency trading.
-    """
+    """MCP server for the Luno cryptocurrency exchange API."""
 
     def __init__(self):
-        """Initialize the MCP server with a Luno API client."""
-        self.dispatcher = SimpleDispatcher()
+        """Initialize the MCP server."""
         self.client = None
-        self._register_methods()
+        self.methods = self._setup_methods()
 
-    def _register_methods(self):
-        """Register all available methods with the dispatcher."""
-        self.dispatcher.methods["get_crypto_price"] = self.get_crypto_price
-        self.dispatcher.methods["get_market_overview"] = self.get_market_overview
-        self.dispatcher.methods["get_account_balance"] = self.get_account_balance
-        self.dispatcher.methods["place_order"] = self.place_order
-        self.dispatcher.methods["cancel_order"] = self.cancel_order
-        self.dispatcher.methods["get_order_status"] = self.get_order_status
-        self.dispatcher.methods["get_transaction_history"] = (
-            self.get_transaction_history
-        )
-        self.dispatcher.methods["get_fees"] = self.get_fees
-        self.dispatcher.methods["describe_capabilities"] = self.describe_capabilities
+    def _setup_methods(self) -> Dict[str, callable]:
+        """Setup method handlers."""
+        return {
+            "describe_capabilities": self.describe_capabilities,
+            "get_crypto_price": self.get_crypto_price,
+            "get_market_overview": self.get_market_overview,
+            "get_account_balance": self.get_account_balance,
+            "place_order": self.place_order,
+            "cancel_order": self.cancel_order,
+            "get_order_status": self.get_order_status,
+            "get_transaction_history": self.get_transaction_history,
+            "get_fees": self.get_fees,
+        }
 
-    async def initialize_client(self):
-        """Initialize the Luno API client with configuration from environment."""
+    async def initialize_client(self) -> LunoClient:
+        """Initialize the Luno API client."""
         if self.client is None:
-            # Get configuration from environment variables
             api_key = os.environ.get("LUNO_API_KEY")
             api_secret = os.environ.get("LUNO_API_SECRET")
 
-            # Configure logging level if specified
+            # Configure logging
             log_level = os.environ.get("LOG_LEVEL", "INFO")
             logging.getLogger().setLevel(getattr(logging, log_level, logging.INFO))
 
-            # Initialize client with environment-provided credentials
             self.client = LunoClient(api_key=api_key, api_secret=api_secret)
 
-            # Log configuration source
             if api_key and api_secret:
-                logger.info("Using API credentials from environment configuration")
+                logger.info("API credentials loaded from environment")
             else:
-                logger.warning("No API credentials found in environment configuration")
+                logger.warning(
+                    "No API credentials found - only public endpoints available"
+                )
 
         return self.client
 
+    # Server capabilities
     async def describe_capabilities(self) -> Dict[str, Any]:
-        """
-        Return information about the server's capabilities.
-
-        This method is required by the MCP protocol and is used to inform
-        the client about available methods and their parameters.
-        """
+        """Return server capabilities."""
         return {
             "name": "luno_mcp_server",
             "version": "0.1.0",
-            "description": "Model Context Protocol server for the Luno cryptocurrency exchange API",
+            "description": "MCP server for Luno cryptocurrency exchange API",
             "vendor": {
                 "name": "Luno API MCP Server",
                 "url": "https://www.luno.com/en/developers/api",
@@ -114,16 +96,9 @@ class LunoMCPServer:
             },
         }
 
+    # Public endpoints (no auth required)
     async def get_crypto_price(self, pair: str) -> Dict[str, Any]:
-        """
-        Get the current price of a cryptocurrency pair.
-
-        Args:
-            pair: The trading pair to get the price for (e.g., "XBTZAR" for Bitcoin-ZAR)
-
-        Returns:
-            A dictionary with price information
-        """
+        """Get current price for a trading pair."""
         client = await self.initialize_client()
         try:
             ticker = await client.get_ticker(pair)
@@ -136,37 +111,27 @@ class LunoMCPServer:
                 "timestamp": ticker.get("timestamp"),
             }
         except Exception as e:
-            logger.error(f"Error getting price for {pair}: {str(e)}")
+            logger.error(f"Error getting price for {pair}: {e}")
             return {"error": str(e), "pair": pair}
 
     async def get_market_overview(self) -> Dict[str, Any]:
-        """
-        Get an overview of all available markets and their current status.
-
-        Returns:
-            A dictionary with market information
-        """
+        """Get overview of all available markets."""
         client = await self.initialize_client()
         try:
             markets = await client.get_market_summary()
             return {"markets": markets}
         except Exception as e:
-            logger.error(f"Error getting market overview: {str(e)}")
+            logger.error(f"Error getting market overview: {e}")
             return {"error": str(e)}
 
+    # Private endpoints (auth required)
     async def get_account_balance(self) -> Dict[str, Any]:
-        """
-        Get the balance of all accounts.
-
-        Returns:
-            A dictionary with account balance information
-        """
+        """Get account balances."""
         client = await self.initialize_client()
         try:
-            balances = await client.get_balances()
-            return balances
+            return await client.get_balances()
         except Exception as e:
-            logger.error(f"Error getting account balances: {str(e)}")
+            logger.error(f"Error getting account balances: {e}")
             return {"error": str(e)}
 
     async def place_order(
@@ -178,23 +143,10 @@ class LunoMCPServer:
         base_account_id: Optional[str] = None,
         counter_account_id: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """
-        Place a new order.
-
-        Args:
-            type: Order type (BID or ASK)
-            pair: Trading pair
-            price: Limit price
-            volume: Amount to trade
-            base_account_id: Account ID to use for base currency
-            counter_account_id: Account ID to use for counter currency
-
-        Returns:
-            A dictionary with order information
-        """
+        """Place a new order."""
         client = await self.initialize_client()
         try:
-            order = await client.create_order(
+            return await client.create_order(
                 type=type,
                 pair=pair,
                 price=price,
@@ -202,45 +154,26 @@ class LunoMCPServer:
                 base_amount=base_account_id,
                 counter_amount=counter_account_id,
             )
-            return order
         except Exception as e:
-            logger.error(f"Error placing order: {str(e)}")
+            logger.error(f"Error placing order: {e}")
             return {"error": str(e)}
 
     async def cancel_order(self, order_id: str) -> Dict[str, Any]:
-        """
-        Cancel an existing order.
-
-        Args:
-            order_id: ID of the order to cancel
-
-        Returns:
-            A dictionary with the cancellation result
-        """
+        """Cancel an existing order."""
         client = await self.initialize_client()
         try:
-            result = await client.stop_order(order_id)
-            return result
+            return await client.stop_order(order_id)
         except Exception as e:
-            logger.error(f"Error canceling order {order_id}: {str(e)}")
+            logger.error(f"Error canceling order {order_id}: {e}")
             return {"error": str(e), "order_id": order_id}
 
     async def get_order_status(self, order_id: str) -> Dict[str, Any]:
-        """
-        Get the status of an order.
-
-        Args:
-            order_id: ID of the order
-
-        Returns:
-            A dictionary with order status information
-        """
+        """Get order status."""
         client = await self.initialize_client()
         try:
-            order = await client.get_order(order_id)
-            return order
+            return await client.get_order(order_id)
         except Exception as e:
-            logger.error(f"Error getting order status for {order_id}: {str(e)}")
+            logger.error(f"Error getting order status for {order_id}: {e}")
             return {"error": str(e), "order_id": order_id}
 
     async def get_transaction_history(
@@ -249,181 +182,85 @@ class LunoMCPServer:
         min_row: Optional[int] = None,
         max_row: Optional[int] = None,
     ) -> Dict[str, Any]:
-        """
-        Get transaction history for an account.
-
-        Args:
-            account_id: ID of the account
-            min_row: Minimum row to return (pagination)
-            max_row: Maximum row to return (pagination)
-
-        Returns:
-            A dictionary with transaction information
-        """
+        """Get transaction history for an account."""
         client = await self.initialize_client()
         try:
-            transactions = await client.get_transactions(account_id, min_row, max_row)
-            return transactions
+            return await client.get_transactions(account_id, min_row, max_row)
         except Exception as e:
-            logger.error(
-                f"Error getting transaction history for {account_id}: {str(e)}"
-            )
+            logger.error(f"Error getting transaction history for {account_id}: {e}")
             return {"error": str(e), "account_id": account_id}
 
     async def get_fees(self, pair: str) -> Dict[str, Any]:
-        """
-        Get fee information for a currency pair.
-
-        Args:
-            pair: Trading pair
-
-        Returns:
-            A dictionary with fee information
-        """
+        """Get fee information for a trading pair."""
         client = await self.initialize_client()
         try:
-            fees = await client.get_fee_info(pair)
-            return fees
+            return await client.get_fee_info(pair)
         except Exception as e:
-            logger.error(f"Error getting fees for {pair}: {str(e)}")
+            logger.error(f"Error getting fees for {pair}: {e}")
             return {"error": str(e), "pair": pair}
 
+    # Request handling
     async def handle_request(self, request_json: str) -> str:
-        """
-        Handle an incoming MCP request.
-
-        Args:
-            request_json: The JSON-RPC request as a string
-
-        Returns:
-            The JSON-RPC response as a string
-        """
+        """Handle incoming MCP request."""
         try:
-            # Parse the request
             request = json.loads(request_json)
             logger.info(f"Received request: {request}")
 
-            # Get the method name
             method = request.get("method")
             if not method:
-                logger.error("No method specified in request")
-                return json.dumps(
-                    {"error": "No method specified", "id": request.get("id")}
-                )
+                return self._error_response("No method specified", request.get("id"))
 
-            # Get the parameters
             params = request.get("params", {})
+            handler = self.methods.get(method)
 
-            # Get the handler for the method
-            handler = self.dispatcher.methods.get(method)
             if not handler:
-                logger.error(f"Unknown method: {method}")
-                return json.dumps(
-                    {
-                        "error": {
-                            "code": -32601,
-                            "message": f"Method '{method}' not found",
-                        },
-                        "id": request.get("id"),
-                    }
+                return self._error_response(
+                    f"Method '{method}' not found", request.get("id"), code=-32601
                 )
 
-            # Call the handler
             result = await handler(**params)
+            return json.dumps(
+                {"jsonrpc": "2.0", "result": result, "id": request.get("id")}
+            )
 
-            # Return the result
-            response = {"jsonrpc": "2.0", "result": result, "id": request.get("id")}
-
-            return json.dumps(response)
         except json.JSONDecodeError:
             logger.error(f"Invalid JSON: {request_json}")
-            return json.dumps({"error": "Invalid JSON", "id": None})
+            return self._error_response("Invalid JSON", None)
         except Exception as e:
-            logger.error(f"Error handling request: {str(e)}")
-            return json.dumps({"error": str(e), "id": None})
+            logger.error(f"Error handling request: {e}")
+            return self._error_response(str(e), None)
 
+    def _error_response(self, message: str, request_id: Any, code: int = -32603) -> str:
+        """Generate error response."""
+        error = {"code": code, "message": message} if code != -32603 else message
+        return json.dumps({"jsonrpc": "2.0", "error": error, "id": request_id})
+
+    # Transport methods
     async def run_with_transport(self, transport: MCPTransport):
-        """
-        Run the server using the specified transport mechanism.
-
-        Args:
-            transport: The transport implementation to use.
-        """
+        """Run server with specified transport."""
         await self.initialize_client()
-        logger.info(f"LunoMCPServer started with {transport.__class__.__name__}")
+        logger.info(f"Luno MCP Server started with {transport.__class__.__name__}")
 
         try:
             await transport.run(self.handle_request)
         except Exception as e:
-            logger.error(f"Error in transport: {str(e)}")
+            logger.error(f"Transport error: {e}")
         finally:
             if self.client:
                 await self.client.close()
-            logger.info("LunoMCPServer shutting down...")
-
-    async def run_forever(self):
-        """
-        Run the server indefinitely using STDIO transport (legacy method).
-
-        This is the main entry point for the MCP server when run as a stdio process.
-        """
-        transport = STDIOTransport()
-        await self.run_with_transport(transport)
-
-    async def run_websocket(
-        self,
-        host="localhost",
-        port=8765,
-        max_connections=50,
-        max_message_size=1024 * 1024,
-        rate_limit=100,
-    ):
-        """
-        Run the server as a WebSocket server.
-
-        Args:
-            host: The host to bind to.
-            port: The port to bind to.
-            max_connections: Maximum number of concurrent connections.
-            max_message_size: Maximum message size in bytes.
-            rate_limit: Maximum number of messages per minute per client.
-        """
-        transport = WebSocketTransport(
-            host=host,
-            port=port,
-            max_connections=max_connections,
-            max_message_size=max_message_size,
-            rate_limit=rate_limit,
-        )
-        await self.run_with_transport(transport)
+            logger.info("Luno MCP Server shutting down")
 
     async def run(
         self,
-        transport_type="stdio",
-        host="localhost",
-        port=8765,
-        max_connections=50,
-        max_message_size=1024 * 1024,
-        rate_limit=100,
+        transport_type: str = "stdio",
+        host: str = "localhost",
+        port: int = 8765,
+        **kwargs,
     ):
-        """
-        Run the server with the specified transport type.
-
-        Args:
-            transport_type: The type of transport to use ("stdio" or "websocket").
-            host: The host to bind to (for WebSocket transport).
-            port: The port to bind to (for WebSocket transport).
-            max_connections: Maximum number of concurrent connections (websocket only).
-            max_message_size: Maximum message size in bytes (websocket only).
-            rate_limit: Maximum number of messages per minute per client (websocket only).
-        """
+        """Run the server."""
         if transport_type.lower() == "websocket":
-            await self.run_websocket(
-                host,
-                port,
-                max_connections=max_connections,
-                max_message_size=max_message_size,
-                rate_limit=rate_limit,
-            )
+            transport = WebSocketTransport(host=host, port=port, **kwargs)
         else:
-            await self.run_forever()
+            transport = STDIOTransport()
+
+        await self.run_with_transport(transport)
