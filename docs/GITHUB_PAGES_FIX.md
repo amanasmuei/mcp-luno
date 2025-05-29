@@ -41,11 +41,18 @@ The following files have been updated to fix the issue:
 
 #### `docs/Gemfile`
 - Switched to `github-pages` gem for better compatibility
+- Added `jekyll-remote-theme` plugin for theme support
 - Commented out individual Jekyll gems
 
 #### `docs/_config.yml`
 - Fixed baseurl to match repository name: `/mcp-luno`
 - Updated URL structure for GitHub Pages
+- Switched to `remote_theme` for better GitHub Pages compatibility
+
+#### Platform Compatibility Fix
+- Removed `Gemfile.lock` to avoid platform conflicts between macOS and Linux
+- Updated workflow to generate fresh bundle on GitHub Actions
+- Added `docs/.gitignore` to exclude platform-specific files
 
 ### 4. Deploy the Changes
 
