@@ -150,13 +150,9 @@ If this Luno MCP server has been helpful for your cryptocurrency trading and ana
 
 ### ☕ Support This Project
 
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](./docs/donate.html)
-[![Ko-fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/amanasmuei)
 [![GitHub Sponsors](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/amanasmuei)
 
 **🌍 Global donation options that work worldwide:**
-- ☕ **Buy Me a Coffee:** [buymeacoffee.com/amanasmuei](https://buymeacoffee.com/amanasmuei) *(Most popular - 190+ countries)*
-- 🌍 **Ko-fi:** [ko-fi.com/amanasmuei](https://ko-fi.com/amanasmuei) *(Creator-friendly platform)*
 - 💖 **GitHub Sponsors:** [github.com/sponsors/amanasmuei](https://github.com/sponsors/amanasmuei) *(Monthly/one-time)*
 - 💳 **PayPal.me:** [paypal.me/amanasmuei](https://paypal.me/amanasmuei) *(Direct payments)*
 - ⭐ **Star this repo** on GitHub
