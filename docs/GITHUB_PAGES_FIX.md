@@ -21,6 +21,8 @@ The workflow error occurs because GitHub Pages is not enabled in your repository
 4. Under **Source**, select **GitHub Actions** (not "Deploy from a branch")
 5. Click **Save**
 
+**Note**: If you see a 404 error after deployment, wait 5-10 minutes for GitHub Pages to fully propagate the changes.
+
 ### 2. Verify Repository Permissions
 
 1. In Settings, go to **Actions** > **General**
