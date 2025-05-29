@@ -375,6 +375,73 @@ def _get_duration_name(duration: int) -> str:
     return duration_map.get(duration, f"{duration}s")
 
 
+@mcp.tool()
+async def get_support_info() -> Dict[str, Any]:
+    """Get information about supporting the Luno MCP Server project.
+
+    Returns:
+        Dictionary containing donation and support information for the project.
+    """
+    return {
+        "project": "Luno MCP Server",
+        "description": "Open source Model Context Protocol server for Luno cryptocurrency exchange",
+        "support_message": "Help keep this free trading tool growing! All donation options work globally. 🌍",
+        "global_donation_options": {
+            "buy_me_coffee": {
+                "url": "https://buymeacoffee.com/amanasmuei",
+                "description": "Most popular platform - works in 190+ countries",
+                "features": [
+                    "PayPal",
+                    "Stripe",
+                    "Local payments",
+                    "Monthly memberships",
+                ],
+            },
+            "kofi": {
+                "url": "https://ko-fi.com/amanasmuei",
+                "description": "Creator-friendly platform with global reach",
+                "features": ["One-time donations", "Monthly memberships"],
+            },
+            "github_sponsors": {
+                "url": "https://github.com/sponsors/amanasmuei",
+                "description": "Monthly or one-time sponsorship through GitHub",
+                "features": ["Integrated with development", "Professional"],
+            },
+            "paypal_me": {
+                "url": "https://paypal.me/amanasmuei",
+                "description": "Direct PayPal payment - works in most countries",
+                "features": ["Instant payments", "No setup required"],
+            },
+            "lightning_network": {
+                "address": "yourlightningaddress@domain.com",
+                "description": "Ultra-fast Bitcoin micropayments",
+                "features": ["Instant settlement", "Low fees"],
+            },
+        },
+        "crypto_donations": {
+            "bitcoin": "3CPb1HP6Gfpx3MZFdrm4nhoHk4VbX2eZRj",
+            "ethereum": "0x54dC4eDf6c940C52A1434824634d8cE8629767b3",
+            "lightning": "yourlightningaddress@domain.com",
+            "note": "Perfect for a crypto trading project!",
+        },
+        "free_support": {
+            "github_star": "https://github.com/amanasmuei/luno-mcp",
+            "share_project": "Tell other crypto traders about this tool",
+            "contribute": "Submit pull requests and improvements",
+        },
+        "what_support_enables": [
+            "New trading pair integrations",
+            "Advanced analytics and indicators",
+            "Performance optimizations",
+            "Bug fixes and security updates",
+            "Comprehensive documentation",
+            "Community support and tutorials",
+        ],
+        "donation_page": "./docs/donate.html",
+        "status": "Thank you for considering supporting this open source project! 🚀",
+    }
+
+
 async def cleanup():
     """Cleanup resources when server shuts down."""
     global client

@@ -144,6 +144,34 @@ luno-mcp/
 2. Test the server directly: `python src/luno_mcp_server/server.py`
 3. Verify dependencies: `pip list | grep fastmcp`
 
+## 💖 Support This Project
+
+If this Luno MCP server has been helpful for your cryptocurrency trading and analysis, consider supporting its development!
+
+### ☕ Support This Project
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](./docs/donate.html)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/amanasmuei)
+[![GitHub Sponsors](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/amanasmuei)
+
+**🌍 Global donation options that work worldwide:**
+- ☕ **Buy Me a Coffee:** [buymeacoffee.com/amanasmuei](https://buymeacoffee.com/amanasmuei) *(Most popular - 190+ countries)*
+- 🌍 **Ko-fi:** [ko-fi.com/amanasmuei](https://ko-fi.com/amanasmuei) *(Creator-friendly platform)*
+- 💖 **GitHub Sponsors:** [github.com/sponsors/amanasmuei](https://github.com/sponsors/amanasmuei) *(Monthly/one-time)*
+- 💳 **PayPal.me:** [paypal.me/amanasmuei](https://paypal.me/amanasmuei) *(Direct payments)*
+- ⭐ **Star this repo** on GitHub
+- 🐛 **Report issues** and contribute improvements
+- 📢 **Share** with other crypto traders
+
+### 🪙 Crypto Donations
+- **Bitcoin (BTC):** `3CPb1HP6Gfpx3MZFdrm4nhoHk4VbX2eZRj`
+- **Ethereum (ETH):** `0x54dC4eDf6c940C52A1434824634d8cE8629767b3`
+- **Luno Trading:** Use this MCP server to trade! 📈
+
+*Your support helps maintain and improve this free, open-source trading tool! 🚀*
+
+---
+
 ## 🎉 Success!
 
 You should now have a fully working Luno MCP server with:
