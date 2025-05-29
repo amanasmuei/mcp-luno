@@ -122,6 +122,13 @@ luno-mcp/
 - [`docs/PYTHON_UPGRADE_GUIDE.md`](docs/PYTHON_UPGRADE_GUIDE.md) - Python upgrade process
 - [`docs/MIGRATION.md`](docs/MIGRATION.md) - Migration from old versions
 - [`docs/CLAUDE_DESKTOP_SETUP.md`](docs/CLAUDE_DESKTOP_SETUP.md) - Detailed setup guide
+- [`docs/GITHUB_PAGES_FIX.md`](docs/GITHUB_PAGES_FIX.md) - Fix GitHub Pages deployment errors
+
+## 📚 Documentation Site
+
+Visit our GitHub Pages documentation: [https://amanasmuei.github.io/mcp-luno](https://amanasmuei.github.io/mcp-luno)
+
+> **Note**: If you encounter GitHub Pages deployment errors, see [`docs/GITHUB_PAGES_FIX.md`](docs/GITHUB_PAGES_FIX.md) for the complete fix guide.
 
 ## 🔒 Security
 

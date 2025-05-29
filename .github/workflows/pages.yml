@@ -44,6 +44,8 @@ jobs:
           # Automatically inject baseurl in your config file and set
           # origin in your config file
           config_file: docs/_config.yml
+          # Enable GitHub Pages if not already enabled
+          enablement: true
       - name: Build with Jekyll
         # Outputs to the './_site' directory by default
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"

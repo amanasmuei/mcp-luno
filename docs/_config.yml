@@ -1,8 +1,8 @@
 # GitHub Pages configuration for Luno MCP Server
 title: "Luno MCP Server"
 description: "Model Context Protocol server for Luno cryptocurrency exchange"
-baseurl: ""
-url: "https://amanasmuei.github.io/luno-mcp"
+baseurl: "/mcp-luno"
+url: "https://amanasmuei.github.io"
 
 # Theme
 theme: minima
