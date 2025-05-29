@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "luno": {
+      "command": "/Users/aman-asmuei/Documents/mcp/mcp-luno/venv/bin/python",
+      "args": [
+        "/Users/aman-asmuei/Documents/mcp/mcp-luno/src/luno_mcp_server/server.py"
+      ],
+      "cwd": "/Users/aman-asmuei/Documents/mcp/mcp-luno",
+      "env": {
+        "LUNO_API_KEY": "your_api_key_here",
+        "LUNO_API_SECRET": "your_api_secret_here"
+      }
+    }
+  }
+}

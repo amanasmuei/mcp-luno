@@ -1,211 +1,136 @@
-# Luno MCP Server
+# 🚀 Luno MCP Server - FastMCP 2.0
 
-A Model Context Protocol (MCP) server for the Luno cryptocurrency exchange API. This server provides a standardized interface for AI models and applications to interact with the Luno API for cryptocurrency trading.
+A modern Model Context Protocol (MCP) server for the Luno cryptocurrency exchange, built with FastMCP 2.0 and Python 3.12.
 
+## ✅ Quick Start
+
+### 1. Install Dependencies
+
+```bash
+# Activate the virtual environment
+source venv/bin/activate
+
+# Dependencies are already installed:
+# - fastmcp 2.5.1
+# - httpx
+# - pydantic
+# - python-dotenv
 ```
- _                        __  __  ____ ____   
-| |    _   _ _ __   ___  |  \/  |/ ___|  _ \  
-| |   | | | | '_ \ / _ \ | |\/| | |   | |_) | 
-| |___| |_| | | | | (_) || |  | | |___|  __/  
-|_____|\__,_|_| |_|\___/ |_|  |_|\____|_|     
-```
 
-## Features
+### 2. Configure Claude Desktop
 
-- Real-time cryptocurrency price information
-- Market overview and account balance queries
-- Order management (place, cancel, status)
-- Transaction history and fee information
-- Multiple transport options (STDIO, WebSocket)
-- Docker support with SSL/TLS encryption
-- Multi-client support
+Add this to your `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
-## Quick Start
-
-### Using Docker (Recommended)
-
-1. **Setup environment:**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your Luno API credentials
-   ```
-
-2. **Start the server:**
-   ```bash
-   docker compose up -d
-   ```
-
-3. **Test connection:**
-   ```bash
-   python test_client.py
-   ```
-
-### Manual Installation
-
-1. **Clone and setup:**
-   ```bash
-   git clone https://github.com/amanasmuei/mcp-luno.git
-   cd mcp-luno
-   uv venv && source .venv/bin/activate
-   uv pip install -r requirements.txt
-   ```
-
-2. **Configure credentials:**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your API keys
-   ```
-
-3. **Run the server:**
-   ```bash
-   # STDIO mode (single client)
-   python -m src.main --transport stdio
-   
-   # WebSocket mode (multiple clients)
-   python -m src.main --transport websocket
-   ```
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `LUNO_API_KEY` | Your Luno API key | Yes* |
-| `LUNO_API_SECRET` | Your Luno API secret | Yes* |
-| `MCP_TRANSPORT` | Transport type (stdio/websocket) | No |
-| `MCP_HOST` | WebSocket host (default: localhost) | No |
-| `MCP_PORT` | WebSocket port (default: 8765) | No |
-| `LOG_LEVEL` | Logging level (default: INFO) | No |
-
-*Required for authenticated endpoints
-
-### AI Assistant Integration
-
-#### Claude Desktop
 ```json
 {
   "mcpServers": {
     "luno": {
-      "command": "docker",
-      "args": ["compose", "up"],
-      "cwd": "/path/to/mcp-luno",
-      "transport": "websocket",
-      "url": "ws://localhost:8765"
+      "command": "/Users/aman-asmuei/Documents/mcp/mcp-luno/venv/bin/python",
+      "args": [
+        "/Users/aman-asmuei/Documents/mcp/mcp-luno/src/luno_mcp_server/server.py"
+      ],
+      "cwd": "/Users/aman-asmuei/Documents/mcp/mcp-luno",
+      "env": {
+        "LUNO_API_KEY": "your_api_key_here",
+        "LUNO_API_SECRET": "your_api_secret_here"
+      }
     }
   }
 }
 ```
 
-#### VS Code / Cursor
-```json
-{
-  "mcp_servers": {
-    "luno": {
-      "type": "websocket",
-      "url": "ws://localhost:8765"
-    }
-  }
-}
+### 3. Test
+
+Restart Claude Desktop and ask:
+- **"What's the Bitcoin price in EUR?"**
+- **"Get ETHZAR price"**
+- **"Show me my account balance"**
+
+## 🛠️ Available Tools
+
+### Public Tools (No API credentials required)
+- `get_crypto_price` - Real-time prices for any trading pair
+- `get_market_overview` - Market data and available pairs
+
+### Private Tools (API credentials required)
+- `get_account_balance` - Account balances
+- `place_order` - Place buy/sell orders
+- `cancel_order` - Cancel orders
+- `get_order_status` - Check order status
+- `get_transaction_history` - Transaction history
+- `get_fees` - Trading fees
+
+## 🌍 Supported Trading Pairs
+
+- **ZAR (South Africa):** XBTZAR, ETHZAR, ADAZAR
+- **EUR (Europe):** XBTEUR, ETHEUR
+- **GBP (UK):** XBTGBP, ETHGBP, SOLGBP
+- **USD (US):** XBTUSD, ETHUSD
+- **And more!**
+
+## 🏗️ Project Structure
+
 ```
-
-## API Methods
-
-| Method | Description | Auth Required |
-|--------|-------------|---------------|
-| `describe_capabilities` | Server capabilities | No |
-| `get_crypto_price` | Current price for trading pair | No |
-| `get_market_overview` | All market overview | No |
-| `get_account_balance` | Account balances | Yes |
-| `place_order` | Place new order | Yes |
-| `cancel_order` | Cancel existing order | Yes |
-| `get_order_status` | Order status | Yes |
-| `get_transaction_history` | Transaction history | Yes |
-| `get_fees` | Fee information | Yes |
-
-### Example Usage
-
-Get Bitcoin price:
-```json
-{
-  "jsonrpc": "2.0",
-  "method": "get_crypto_price",
-  "params": {"pair": "XBTZAR"},
-  "id": 1
-}
-```
-
-## Development
-
-### Project Structure
-```
+luno-mcp/
 ├── src/
-│   ├── main.py                    # Entry point
-│   └── luno_mcp_server/
-│       ├── server.py              # MCP server implementation
-│       ├── luno_client.py         # Luno API client
-│       └── transport.py           # Transport implementations
-├── tests/                         # Test suite
-├── docker-compose.yml             # Docker configuration
-├── requirements.txt               # Dependencies
-└── README.md                      # This file
+│   ├── luno_mcp/              # Modern FastMCP 2.0 implementation
+│   │   ├── server.py          # Main server with all tools
+│   │   ├── client.py          # Luno API client
+│   │   ├── config.py          # Configuration management
+│   │   └── tools/             # Modular tool organization
+│   ├── luno_mcp_server/       # Working FastMCP server (CURRENT)
+│   │   ├── server.py          # ← Currently used by Claude Desktop
+│   │   └── luno_client.py     # Luno API client
+│   └── main.py                # Alternative entry point
+├── tests/                     # Test suite
+├── docs/                      # Documentation
+├── archive/                   # Old implementations
+├── venv/                      # Python 3.12 virtual environment
+└── README.md                  # This file
 ```
 
-### Running Tests
-```bash
-python -m pytest tests/
-```
+## 🔧 Technical Details
 
-### Adding Features
+- **Python:** 3.12.10 (in virtual environment)
+- **Framework:** FastMCP 2.5.1
+- **API Client:** httpx for async HTTP requests
+- **Transport:** STDIO (JSON-RPC 2.0)
+- **Architecture:** Async/await with proper error handling
 
-1. Extend `LunoClient` in `luno_client.py`
-2. Add methods to `LunoMCPServer` in `server.py`
-3. Register methods in `_register_methods()`
-4. Add tests in `tests/`
+## 📚 Documentation
 
-## Advanced Features
+- [`docs/PYTHON_UPGRADE_GUIDE.md`](docs/PYTHON_UPGRADE_GUIDE.md) - Python upgrade process
+- [`docs/MIGRATION.md`](docs/MIGRATION.md) - Migration from old versions
+- [`docs/CLAUDE_DESKTOP_SETUP.md`](docs/CLAUDE_DESKTOP_SETUP.md) - Detailed setup guide
 
-### Multi-Client Support
-See [MULTI_CLIENT_SUPPORT.md](MULTI_CLIENT_SUPPORT.md) for detailed information about WebSocket transport and multiple client connections.
+## 🔒 Security
 
-### SSL/TLS Support
-```bash
-# Generate certificates
-./generate_certificates.sh
+- API credentials stored as environment variables
+- All communications use HTTPS
+- Virtual environment isolation
+- No credentials logged or exposed
 
-# Run with SSL
-python -m src.main --transport websocket --ssl-cert ./certs/server.crt --ssl-key ./certs/server.key
-```
-
-### Docker Options
-```bash
-# Custom configuration
-docker run -d \
-  -p 8765:8765 \
-  -e LUNO_API_KEY=your_key \
-  -e LUNO_API_SECRET=your_secret \
-  -e MCP_TRANSPORT=websocket \
-  -v ./certs:/app/certs \
-  mcp-luno
-```
-
-## Troubleshooting
+## 🚨 Troubleshooting
 
 ### Common Issues
 
-- **Authentication errors**: Verify API credentials in `.env`
-- **Connection refused**: Check if server is running on correct port
-- **Rate limiting**: Luno API has rate limits, implement retry logic
+1. **Import errors:** Make sure you're using the virtual environment
+2. **API errors:** Check your Luno API credentials
+3. **Connection issues:** Verify internet connectivity
 
-### Debug Mode
-```bash
-LOG_LEVEL=DEBUG python -m src.main
-```
+### Get Help
 
-## License
+1. Check the logs in Claude Desktop
+2. Test the server directly: `python src/luno_mcp_server/server.py`
+3. Verify dependencies: `pip list | grep fastmcp`
 
-MIT License - see LICENSE file for details.
+## 🎉 Success!
 
----
+You should now have a fully working Luno MCP server with:
+- ✅ Real-time cryptocurrency prices
+- ✅ Multi-currency support (ZAR, EUR, GBP, USD)
+- ✅ Account management tools
+- ✅ Trading capabilities
+- ✅ FastMCP 2.0 architecture
 
-**Note**: This MCP server requires valid Luno API credentials for full functionality. Public endpoints (price, market data) work without authentication.
+**Ask Claude: "What's the Bitcoin price in EUR?" to test!**
