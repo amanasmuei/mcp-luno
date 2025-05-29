@@ -25,6 +25,7 @@ class LunoEndpoint(str, Enum):
     ORDERBOOK = "/api/1/orderbook"
     TRADES = "/api/1/trades"
     MARKET_SUMMARY = "/api/exchange/1/markets"
+    CANDLES = "/api/exchange/1/candles"
 
     # Private endpoints
     ACCOUNTS = "/api/1/accounts"
@@ -198,6 +199,16 @@ class LunoClient:
     async def get_market_summary(self) -> Dict[str, Any]:
         """Get a summary of all markets."""
         return await self._request("GET", LunoEndpoint.MARKET_SUMMARY)
+
+    async def get_candles(self, pair: str, since: int, duration: int) -> Dict[str, Any]:
+        """Get candlestick market data for a currency pair."""
+        self._require_auth()  # Note: This endpoint requires authentication
+        params = {
+            "pair": pair.upper(),
+            "since": since,
+            "duration": duration,
+        }
+        return await self._request("GET", LunoEndpoint.CANDLES, params=params)
 
     # Private endpoints (authentication required)
 

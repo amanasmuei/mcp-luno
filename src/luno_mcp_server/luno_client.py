@@ -26,6 +26,7 @@ class LunoEndpoint(str, Enum):
     ORDER = "/api/1/orders/{id}"
     STOP_ORDER = "/api/1/stoporder"
     FEES = "/api/1/fee_info"
+    CANDLES = "/api/exchange/1/candles"
 
 
 class LunoClient:
@@ -171,3 +172,14 @@ class LunoClient:
     async def get_fee_info(self, pair: str) -> Dict[str, Any]:
         """Get fee information for a currency pair."""
         return await self._request("GET", LunoEndpoint.FEES, params={"pair": pair})
+
+    async def get_candles(self, pair: str, since: int, duration: int) -> Dict[str, Any]:
+        """Get candlestick market data for a currency pair."""
+        if not self.api_key or not self.api_secret:
+            raise ValueError("Historical data endpoint requires authentication")
+        params = {
+            "pair": pair.upper(),
+            "since": since,
+            "duration": duration,
+        }
+        return await self._request("GET", LunoEndpoint.CANDLES, params=params)

@@ -45,12 +45,18 @@ Restart Claude Desktop and ask:
 - **"What's the Bitcoin price in EUR?"**
 - **"Get ETHZAR price"**
 - **"Show me my account balance"**
+- **"Get historical prices for XBTZAR over the last 7 days"**
+- **"Show me Bitcoin price range analysis for the past 30 days"**
 
 ## 🛠️ Available Tools
 
 ### Public Tools (No API credentials required)
 - `get_crypto_price` - Real-time prices for any trading pair
 - `get_market_overview` - Market data and available pairs
+
+### Historical Data Tools (API credentials required)
+- `get_historical_prices` - OHLC candlestick data for any trading pair
+- `get_price_range` - Price analysis over specified time periods (1-30 days)
 
 ### Private Tools (API credentials required)
 - `get_account_balance` - Account balances
@@ -59,6 +65,20 @@ Restart Claude Desktop and ask:
 - `get_order_status` - Check order status
 - `get_transaction_history` - Transaction history
 - `get_fees` - Trading fees
+
+## 📈 Historical Price Data Features
+
+### Candlestick Data (`get_historical_prices`)
+- **Timeframes:** 1m, 5m, 15m, 30m, 1h, 3h, 4h, 8h, 24h, 3d, 7d
+- **Data:** OHLC (Open, High, Low, Close) + Volume
+- **Limit:** Up to 1000 candles per request
+- **Format:** Standard candlestick data with timestamps
+
+### Price Range Analysis (`get_price_range`)
+- **Period:** 1-30 days of historical data
+- **Statistics:** High, Low, Open, Close, Average prices
+- **Metrics:** Price change, percentage change, total volume
+- **Convenience:** Automatic daily candle aggregation
 
 ## 🌍 Supported Trading Pairs
 
@@ -128,9 +148,11 @@ luno-mcp/
 
 You should now have a fully working Luno MCP server with:
 - ✅ Real-time cryptocurrency prices
+- ✅ **Historical price data and candlestick charts**
+- ✅ **Price range analysis and statistics**
 - ✅ Multi-currency support (ZAR, EUR, GBP, USD)
 - ✅ Account management tools
 - ✅ Trading capabilities
 - ✅ FastMCP 2.0 architecture
 
-**Ask Claude: "What's the Bitcoin price in EUR?" to test!**
+**Ask Claude: "What's the Bitcoin price in EUR?" or "Show me XBTZAR price history for the past week" to test!**

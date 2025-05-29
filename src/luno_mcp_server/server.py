@@ -227,6 +227,154 @@ async def get_fees(pair: str) -> Dict[str, Any]:
         return {"error": str(e), "pair": pair}
 
 
+@mcp.tool()
+async def get_historical_prices(
+    pair: str,
+    since: int,
+    duration: int = 86400,
+) -> Dict[str, Any]:
+    """Get historical price data (OHLC candlestick data) for a trading pair.
+
+    Args:
+        pair: Trading pair (e.g., 'XBTZAR', 'ETHZAR')
+        since: Start timestamp in Unix milliseconds (up to 1000 candles will be returned)
+        duration: Candle duration in seconds. Supported values:
+                 60 (1m), 300 (5m), 900 (15m), 1800 (30m), 3600 (1h),
+                 10800 (3h), 14400 (4h), 28800 (8h), 86400 (24h),
+                 259200 (3d), 604800 (7d). Default: 86400 (24h)
+
+    Returns:
+        Dictionary containing historical candlestick data with OHLC prices and volume.
+    """
+    client = await get_client()
+    try:
+        candles = await client.get_candles(pair, since, duration)
+
+        duration_name = _get_duration_name(duration)
+
+        return {
+            "pair": pair.upper(),
+            "since": since,
+            "duration": duration,
+            "duration_name": duration_name,
+            "candles": candles.get("candles", []),
+            "candle_count": len(candles.get("candles", [])),
+            "status": "success",
+        }
+    except Exception as e:
+        logger.error(f"Error getting historical prices for {pair}: {e}")
+        return {
+            "pair": pair,
+            "since": since,
+            "duration": duration,
+            "error": str(e),
+            "status": "error",
+        }
+
+
+@mcp.tool()
+async def get_price_range(
+    pair: str,
+    days: int = 7,
+) -> Dict[str, Any]:
+    """Get price range analysis for a trading pair over a specified number of days.
+
+    Args:
+        pair: Trading pair (e.g., 'XBTZAR', 'ETHZAR')
+        days: Number of days of historical data to retrieve (1-30). Default: 7
+
+    Returns:
+        Dictionary containing price statistics including high, low, open, close prices
+        and percentage changes over the specified time period.
+    """
+    client = await get_client()
+    try:
+        # Validate days parameter
+        if days < 1 or days > 30:
+            return {
+                "pair": pair,
+                "error": "Days parameter must be between 1 and 30",
+                "status": "error",
+            }
+
+        # Calculate since timestamp (days ago)
+        from datetime import datetime, timezone, timedelta
+
+        since_dt = datetime.now(timezone.utc) - timedelta(days=days)
+        since = int(since_dt.timestamp() * 1000)
+
+        # Get daily candles (86400 seconds = 24 hours)
+        candles_data = await client.get_candles(pair, since, 86400)
+        candles = candles_data.get("candles", [])
+
+        if not candles:
+            return {
+                "pair": pair.upper(),
+                "days": days,
+                "error": "No historical data available for the specified period",
+                "status": "error",
+            }
+
+        # Calculate price statistics
+        prices = [float(candle["close"]) for candle in candles]
+        highs = [float(candle["high"]) for candle in candles]
+        lows = [float(candle["low"]) for candle in candles]
+        volumes = [float(candle["volume"]) for candle in candles]
+
+        first_candle = candles[0]
+        last_candle = candles[-1]
+
+        open_price = float(first_candle["open"])
+        close_price = float(last_candle["close"])
+        price_change = close_price - open_price
+        price_change_percent = (
+            (price_change / open_price) * 100 if open_price > 0 else 0
+        )
+
+        return {
+            "pair": pair.upper(),
+            "days": days,
+            "period_start": first_candle["timestamp"],
+            "period_end": last_candle["timestamp"],
+            "open_price": str(open_price),
+            "close_price": str(close_price),
+            "highest_price": str(max(highs)),
+            "lowest_price": str(min(lows)),
+            "price_change": str(price_change),
+            "price_change_percent": f"{price_change_percent:.2f}%",
+            "average_price": str(sum(prices) / len(prices)),
+            "total_volume": str(sum(volumes)),
+            "candle_count": len(candles),
+            "status": "success",
+        }
+    except Exception as e:
+        logger.error(f"Error getting price range for {pair}: {e}")
+        return {
+            "pair": pair,
+            "days": days,
+            "error": str(e),
+            "status": "error",
+        }
+
+
+def _get_duration_name(duration: int) -> str:
+    """Convert duration in seconds to human-readable name."""
+    duration_map = {
+        60: "1m",
+        300: "5m",
+        900: "15m",
+        1800: "30m",
+        3600: "1h",
+        10800: "3h",
+        14400: "4h",
+        28800: "8h",
+        86400: "24h",
+        259200: "3d",
+        604800: "7d",
+    }
+    return duration_map.get(duration, f"{duration}s")
+
+
 async def cleanup():
     """Cleanup resources when server shuts down."""
     global client
