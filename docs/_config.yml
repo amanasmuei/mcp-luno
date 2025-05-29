@@ -5,13 +5,12 @@ baseurl: "/mcp-luno"
 url: "https://amanasmuei.github.io"
 
 # Theme
-remote_theme: "pages-themes/minima@v2.5.1"
+theme: minima
 
 # Enable GitHub Pages
 plugins:
   - jekyll-feed
   - jekyll-sitemap
-  - jekyll-remote-theme
 
 # Include the donation page
 include:
