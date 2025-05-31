@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "Luno MCP Server Documentation"
+permalink: /
 ---
 
 # Luno MCP Server
